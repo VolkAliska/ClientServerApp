@@ -15,6 +15,8 @@
 using namespace std;
 
 int clientSock;
+const int bufMsgSize = 4096;
+const uint16_t inPort = 54000;
 
 void sigHandler(int i) {
     close(clientSock);
@@ -82,7 +84,7 @@ int startNewConnection() {
         // Bind the ip address and port to a socket
     sockaddr_in sickAdr;
     sickAdr.sin_family = AF_INET;
-    sickAdr.sin_port = htons(54000);
+    sickAdr.sin_port = htons(inPort);
     inet_pton(AF_INET, "0.0.0.0", &sickAdr.sin_addr);
     
     bind(listening, (sockaddr*)&sickAdr, sizeof(sickAdr));
@@ -139,9 +141,9 @@ int main() {
             break;
         }
     
-        char bufMsg[4096] = {'0'};
+        char bufMsg[bufMsgSize] = {'0'};
         while (true) {
-            int received = recv(clientSock, bufMsg, 4096, 0);
+            int received = recv(clientSock, bufMsg, bufMsgSize, 0);
             sendReply();
 
             string filename(bufMsg);
@@ -160,10 +162,10 @@ int main() {
                     // syslog(LOG_DEBUG, strerror(errno));
                 }
 
-                char recText[4096] = {'0'};
+                char recText[bufMsgSize] = {'0'};
                 while(1) {
                     
-                    int bytes = recv(clientSock, recText, 4096, 0);
+                    int bytes = recv(clientSock, recText, bufMsgSize, 0);
                     if (bytes == -1) {
                         syslog(LOG_DEBUG, "Error in receiving");
                         cerr << "Error in recv(). Quitting" << endl;

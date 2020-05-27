@@ -8,16 +8,18 @@
 
 using namespace std;
 
+const int bufMsgSize = 1024;
+const uint16_t inPort = 54000;
+
 int startConnection() {
     int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == -1) {
         return -1;
     }
-    int port = 54000;
     string ip = "127.0.0.1";
     sockaddr_in sockAdr;
     sockAdr.sin_family = AF_INET;
-    sockAdr.sin_port = htons(port);
+    sockAdr.sin_port = htons(inPort);
     inet_pton(AF_INET, ip.c_str(), &sockAdr.sin_addr);
 
     int connection = connect(sock, (sockaddr*)&sockAdr, sizeof(sockAdr));
@@ -48,10 +50,9 @@ string getNameWithPath(string filename) {
 }
 
 int getServerAck(int sock) {
-    char bufans[1024];
-    cout << "Wait server's reply" << endl;
+    char bufans[bufMsgSize];
     while(1) {
-        int bytes = recv(sock, bufans, 1024, 0);
+        int bytes = recv(sock, bufans, bufMsgSize, 0);
         if (bytes == -1) {
             cerr << "Error recieving" << endl;
             return 0;
@@ -71,7 +72,6 @@ int main() {
         return 1;
     }
 
-    char msgBuf[4096];
     string filename;
 
     while (true) {
