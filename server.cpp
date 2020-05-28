@@ -165,20 +165,13 @@ int main() {
                 char recText[bufMsgSize] = {'0'};
                 while(1) {
                     int bytes = recv(clientSock, recText, bufMsgSize, 0);
-                    printf("%s", recText);
                     if (bytes == -1) {
                         syslog(LOG_DEBUG, "Error in receiving");
                         cerr << "Error in recv(). Quitting" << endl;
                         break;
                     }
                     else if (bytes != 0) {
-
                         string line(recText);
-                        // if (fileFilled == 1)
-                        //     line = "\n" + line;
-                        // syslog(LOG_DEBUG, "kek");
-                        syslog(LOG_DEBUG, line.c_str());
-                        // line = line;
                         int written = write(fout, line.c_str(), line.length());
                         fileFilled = 1;
                         if (written != line.length())
