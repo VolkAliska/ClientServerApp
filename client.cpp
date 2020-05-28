@@ -9,6 +9,7 @@
 using namespace std;
 
 const int bufMsgSize = 1024;
+const int strSize = 4096;
 const uint16_t inPort = 54000;
 
 int startConnection() {
@@ -95,20 +96,37 @@ int main() {
         string line;
 
         ifstream fileToSend(filename);
-        if (fileToSend.is_open()) {
-            while (getline(fileToSend, line)) {
-                // cout << line << endl;
-                int sendRes = send(sock, line.c_str(), line.size() + 1, 0);
-                if (sendRes == -1) {
-                    cout << "Couldn;t send to server" << endl;;
-                    continue;
-                }
-                if (!getServerAck(sock)) {
-                    break;
+        FILE * fp;
+        char str[strSize];
+        if(fp = fopen(filename.c_str(), "r")) {
+            while(!feof(fp)) {
+                if (fgets(str, strSize-2, fp)) {
+                    printf("%s", str);
+                    int sendRes = send(sock, str, strSize-1, 0);
+                    if (sendRes == -1) {
+                        cout << "Couldn;t send to server" << endl;;
+                        continue;
+                    }
+                    if (!getServerAck(sock)) {
+                        break;
+                    }
                 }
             }
         }
+        // if (fileToSend.is_open()) {
+        //     while (getline(fileToSend, line)) {
+        //         int sendRes = send(sock, line.c_str(), line.size() + 1, 0);
+        //         if (sendRes == -1) {
+        //             cout << "Couldn;t send to server" << endl;;
+        //             continue;
+        //         }
+        //         if (!getServerAck(sock)) {
+        //             break;
+        //         }
+        //     }
+        // }
         fileToSend.close();
+        fclose(fp);
     }
 
     close(sock);
