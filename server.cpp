@@ -161,10 +161,9 @@ int main() {
                     syslog(LOG_DEBUG, "File is not created");
                     // syslog(LOG_DEBUG, strerror(errno));
                 }
-
+                int fileFilled = 0;
                 char recText[bufMsgSize] = {'0'};
                 while(1) {
-                    
                     int bytes = recv(clientSock, recText, bufMsgSize, 0);
                     if (bytes == -1) {
                         syslog(LOG_DEBUG, "Error in receiving");
@@ -172,9 +171,15 @@ int main() {
                         break;
                     }
                     else if (bytes != 0) {
+
                         string line(recText);
-                        line = line + '\n';
+                        if (fileFilled == 1)
+                            line = "\n" + line;
+
+                        syslog(LOG_DEBUG, line.c_str());
+                        // line = line;
                         int written = write(fout, line.c_str(), line.length());
+                        fileFilled = 1;
                         if (written != line.length())
                             syslog(LOG_DEBUG, "not writed");
                         sendReply();
@@ -184,7 +189,6 @@ int main() {
                         break;
                     }
                 }
-
                 close(fout); 
             }
             if (received == 0) {
